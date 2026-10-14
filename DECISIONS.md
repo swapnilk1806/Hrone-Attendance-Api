@@ -1,0 +1,9 @@
+1. **Indexes.** I created a unique index on `employees.emp_code`, a compound index on `employees.department + joined_on`, a unique compound index on `attendance_logs.emp_code + date`, and an index on `attendance_logs.date + emp_code` plus one on `attendance_logs.emp_code + date + status`. These support uniqueness, lookup-by-code, filtering by date, and the analytics queries. I considered a separate single-field `date` index, but it was redundant with the stronger compound date+emp_code index and would not help as much on the common queries.
+
+2. **Punch-in race.** Two identical punch-in requests hit the same employee/date at the same time. The code does not do a separate check-then-insert race window; it goes straight to `insert_one` in a `try/except DuplicateKeyError`. The database enforces uniqueness on `emp_code + date`, so exactly one insert succeeds with 201 and the other gets 409. That matches the contract.
+
+3. **Ties.** The leaderboard ranks by total late minutes, using competition ranking: tied totals share the same rank and the next rank is skipped. For example, totals 90, 90, 45 produce ranks 1, 1, 3. The API filters rows after ranking with `rank <= limit`, so ties at the cutoff can produce more than `limit` rows when they share a qualifying rank.
+
+4. **Headcount.** Department summaries start from the `employees` collection filtered by `joined_on <= month_end`, so employees with zero attendance logs still count toward `headcount`. Then the monthly summary loops the relevant attendance records and adds present-day totals without depending on logs to exist for every employee.
+
+5. **One thing to change at 100x the data.** I would move the expensive analytics into MongoDB aggregation pipelines and database-side grouping instead of Python-side iteration, especially for department trends and summary reports. That would reduce memory pressure and let the database use indexes and streaming execution for large datasets.
