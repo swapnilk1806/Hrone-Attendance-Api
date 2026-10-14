@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Candidate kit
 
 Read in this order:
@@ -24,3 +25,6 @@ MongoDB **6.0 or newer** is required (the grader uses 7.0). MongoDB Atlas free t
 ## Submit
 A public Git repository with `app/main.py`, `requirements.txt`, `REVIEW.md`, `DECISIONS.md` and a short `README.md`.
 No `.env`, no secrets, no Dockerfile.
+=======
+# Hrone-Attendance-Api
+>>>>>>> 9da9887bf9b25bac5d3884d2c5447d67f47eec29
